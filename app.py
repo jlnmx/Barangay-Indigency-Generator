@@ -11,10 +11,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///barangay.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
 
-# Initialize the database
 db = SQLAlchemy(app)
 
-# Database model for residents
 class Resident(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
@@ -27,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def generate_certificate(data):
     try:
-        config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')  # Update path
+        config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')  
         html = render_template('certificate_template.html', **data)
         pdf = pdfkit.from_string(html, False, configuration=config)
         return BytesIO(pdf)
@@ -35,6 +33,12 @@ def generate_certificate(data):
         logging.error(f"Error generating certificate: {e}")
         raise
 
+logging.basicConfig(level=logging.DEBUG)
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    logging.error(f"An error occurred: {e}")
+    return render_template("500.html"), 500
 
 @app.route('/')
 def index():

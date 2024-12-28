@@ -3,12 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Indigency Certificate</title>
+    <title>Certificate of Indigency</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0 auto;
+            padding: 20px;
+            width: 8.5in; /* Letter size */
+            height: 11in;
+            border: 1px solid #000;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            width: 100px;
+            height: auto;
+        }
+        .certificate-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .content {
+            margin-top: 40px;
+            line-height: 1.6;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
-    <h1>Barangay Indigency Certificate</h1>
-    <p>This is to certify that <strong>{{ full_name }}</strong>, residing at <strong>{{ address }}</strong>,</p>
-    <p>is currently employed as <strong>{{ occupation }}</strong>. The purpose of this certificate is for <strong>{{ purpose }}</strong>.</p>
-    <p>Date Issued: {{ date }}</p>
+    <div class="header">
+        <img src="https://via.placeholder.com/100" alt="Barangay Logo">
+        <p>Republic of the Philippines</p>
+        <p>Barangay Malaban</p>
+    </div>
+
+    <div class="certificate-title">Certificate of Indigency</div>
+
+    <div class="content">
+        <p>This is to certify that <strong>{{ full_name }}</strong>, of legal age, residing at <strong>{{ address }}</strong>, and employed as a <strong>{{ occupation }}</strong>, is a resident of Barangay Malaban.</p>
+
+        <p>This certification is issued upon the request of the above-named person for the purpose of <strong>{{ purpose }}</strong>.</p>
+
+        <p>Issued this <strong>{{ date }}</strong> at Barangay Malaban.</p>
+    </div>
+
+    <div class="footer">
+        <p><strong>Barangay Chairman</strong></p>
+        <p>Signature over Printed Name</p>
+    </div>
 </body>
 </html>
