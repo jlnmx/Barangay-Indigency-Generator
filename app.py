@@ -25,12 +25,12 @@ logging.basicConfig(level=logging.DEBUG)
 
 def generate_certificate(data):
     try:
-        config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')  
+        config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
         html = render_template('certificate_template.html', **data)
         pdf = pdfkit.from_string(html, False, configuration=config)
         return BytesIO(pdf)
     except Exception as e:
-        logging.error(f"Error generating certificate: {e}")
+        logging.error(f"Error generating certificate: {e}, Data: {data}")
         raise
 
 logging.basicConfig(level=logging.DEBUG)
