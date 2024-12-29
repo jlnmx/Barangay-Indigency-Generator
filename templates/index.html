@@ -4,12 +4,15 @@
     <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Indigency Certificates</title>
+    <title>Residents</title>
 </head>
-    <body>
-        <div class="tablecontainer">
-        <h1>Barangay Indigency Certificates</h1>
-        <a href="/add">Add Resident</a>
+<body>
+    <div class="container">
+        <h1>Residents</h1>
+        <form method="GET">
+            <input type="text" name="query" placeholder="Search by Name" value="{{ query }}">
+            <button type="submit">Search</button>
+        </form>
         <table border="1">
             <tr>
                 <th>Name</th>
@@ -31,6 +34,7 @@
             </tr>
             {% endfor %}
         </table>
+        <a href="/">Back</a>
     </div>
 </body>
 </html>

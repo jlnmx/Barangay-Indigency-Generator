@@ -5,6 +5,7 @@ from datetime import datetime
 import pdfkit
 import os
 import logging
+from collections import Counter
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///barangay.db'
@@ -33,17 +34,23 @@ def generate_certificate(data):
         logging.error(f"Error generating certificate: {e}, Data: {data}")
         raise
 
-logging.basicConfig(level=logging.DEBUG)
-
 @app.errorhandler(Exception)
 def handle_exception(e):
     logging.error(f"An error occurred: {e}")
     return render_template("500.html"), 500
 
 @app.route('/')
+def home_screen():
+    return render_template('HomeScreen.html')
+
+@app.route('/residents', methods=['GET'])
 def index():
-    residents = Resident.query.all()
-    return render_template('index.html', residents=residents)
+    query = request.args.get('query', '')
+    if query:
+        residents = Resident.query.filter(Resident.full_name.contains(query)).all()
+    else:
+        residents = Resident.query.all()
+    return render_template('index.html', residents=residents, query=query)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_resident():
@@ -80,6 +87,15 @@ def delete(id):
     db.session.delete(resident)
     db.session.commit()
     return redirect(url_for('index'))
+
+@app.route('/analytics')
+def analytics():
+    residents = Resident.query.all()
+    total_residents = len(residents)
+    purposes = [resident.purpose for resident in residents]
+    most_common_purpose = Counter(purposes).most_common(1)[0] if purposes else ("None", 0)
+
+    return render_template('analytics.html', total_residents=total_residents, most_common_purpose=most_common_purpose)
 
 @app.errorhandler(404)
 def page_not_found(e):
