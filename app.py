@@ -90,12 +90,34 @@ def delete(id):
 
 @app.route('/analytics')
 def analytics():
-    residents = Resident.query.all()
-    total_residents = len(residents)
-    purposes = [resident.purpose for resident in residents]
-    most_common_purpose = Counter(purposes).most_common(1)[0] if purposes else ("None", 0)
+    total_residents = Resident.query.count()
 
-    return render_template('analytics.html', total_residents=total_residents, most_common_purpose=most_common_purpose)
+    # Purpose analysis
+    purposes = [resident.purpose for resident in Resident.query.all()]
+    purpose_counts = {p: purposes.count(p) for p in set(purposes)}
+    purpose_labels = list(purpose_counts.keys())
+    purpose_values = list(purpose_counts.values())
+    purpose_percentages = [round((v / total_residents) * 100, 2) for v in purpose_values]
+
+    # Occupation analysis
+    occupations = [resident.occupation for resident in Resident.query.all()]
+    occupation_counts = {o: occupations.count(o) for o in set(occupations)}
+    occupation_labels = list(occupation_counts.keys())
+    occupation_values = list(occupation_counts.values())
+    occupation_percentages = [round((v / total_residents) * 100, 2) for v in occupation_values]
+
+    return render_template(
+        'analytics.html',
+        total_residents=total_residents,
+        purpose_labels=purpose_labels,
+        purpose_counts=purpose_values,
+        purpose_percentages=purpose_percentages,
+        occupation_labels=occupation_labels,
+        occupation_counts=occupation_values,
+        occupation_percentages=occupation_percentages,
+        zip=zip  
+    )
+
 
 @app.errorhandler(404)
 def page_not_found(e):
