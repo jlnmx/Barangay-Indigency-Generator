@@ -1,122 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        h1, h2, h3 {
+            text-align: center;
+        }
         .chart-container {
-            width: 60%;
-            margin: auto;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
         }
-        .data-summary {
-            margin: 20px auto;
-            width: 60%;
-            text-align: left;
+        canvas {
+            max-width: 400px; /* Limit chart size */
+            max-height: 400px;
+            margin: 10px;
         }
-        .data-summary h3 {
-            margin-bottom: 5px;
-        }
-        .data-summary ul {
-            list-style: none;
-            padding: 0;
-        }
-        .data-summary ul li {
-            margin: 5px 0;
+        .download-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Analytics</h1>
-        <p><strong>Total Number of Residents:</strong> {{ total_residents }}</p>
+    <div class="header">
+        <a href="{{ url_for('home_screen') }}">Back to Home</a> | 
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <h1>Analytics</h1>
+    <h2>Total Residents: {{ total_residents }}</h2>
 
-        <div class="data-summary">
+    <div class="chart-container">
+        <div>
             <h3>Purpose Distribution</h3>
-            <ul>
-                {% for label, count, percentage in zip(purpose_labels, purpose_counts, purpose_percentages) %}
-                    <li>{{ label }}: {{ count }} ({{ percentage }}%)</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="chart-container">
             <canvas id="purposeChart"></canvas>
         </div>
-
-        <div class="data-summary">
+        <div>
             <h3>Occupation Distribution</h3>
-            <ul>
-                {% for label, count, percentage in zip(occupation_labels, occupation_counts, occupation_percentages) %}
-                    <li>{{ label }}: {{ count }} ({{ percentage }}%)</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="chart-container">
             <canvas id="occupationChart"></canvas>
         </div>
+    </div>
 
-        <a href="/" style="display: block; text-align: center; margin: 20px;">Back</a>
+    <div class="download-link">
+        <a href="{{ url_for('download_report') }}">Download Analytics Report</a>
     </div>
 
     <script>
-        const purposeLabels = {{ purpose_labels|tojson }};
-        const purposeCounts = {{ purpose_counts|tojson }};
-    
-        const purposeCtx = document.getElementById('purposeChart').getContext('2d');
-        new Chart(purposeCtx, {
+        var ctx1 = document.getElementById('purposeChart').getContext('2d');
+        var purposeChart = new Chart(ctx1, {
             type: 'pie',
             data: {
-                labels: purposeLabels,
+                labels: {{ purpose_labels|tojson }},
                 datasets: [{
-                    data: purposeCounts,
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+                    label: 'Purpose Distribution',
+                    data: {{ purpose_counts|tojson }},
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                    borderColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                    borderWidth: 1
                 }]
             },
             options: {
+                maintainAspectRatio: false,
                 responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
             }
         });
-    
-        const occupationLabels = {{ occupation_labels|tojson }};
-        const occupationCounts = {{ occupation_counts|tojson }};
-    
-        const occupationCtx = document.getElementById('occupationChart').getContext('2d');
-        new Chart(occupationCtx, {
+
+        var ctx2 = document.getElementById('occupationChart').getContext('2d');
+        var occupationChart = new Chart(ctx2, {
             type: 'bar',
             data: {
-                labels: occupationLabels,
+                labels: {{ occupation_labels|tojson }},
                 datasets: [{
-                    label: 'Number of Residents',
-                    data: occupationCounts,
-                    backgroundColor: '#36A2EB',
+                    label: 'Occupation Distribution',
+                    data: {{ occupation_counts|tojson }},
+                    backgroundColor: '#42a5f5',
+                    borderColor: '#1e88e5',
+                    borderWidth: 1
                 }]
             },
             options: {
+                maintainAspectRatio: false,
                 responsive: true,
-                maintainAspectRatio: true,
                 scales: {
+                    x: {
+                        beginAtZero: true,
+                    },
                     y: {
-                        beginAtZero: true
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false,
+                        beginAtZero: true,
                     }
                 }
             }
         });
     </script>
-    
 </body>
 </html>

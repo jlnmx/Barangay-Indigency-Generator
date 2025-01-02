@@ -1,40 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Residents</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Residents</h1>
-        <form method="GET">
-            <input type="text" name="query" placeholder="Search by Name" value="{{ query }}">
-            <button type="submit">Search</button>
-        </form>
-        <table border="1">
+    <div class="header">
+        <a href="{{ url_for('home_screen') }}">Back to Home</a> | 
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <h1>Residents</h1>
+    <form method="GET">
+        <label for="query">Search by Name:</label>
+        <input type="text" name="query" value="{{ query }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <table border="1">
+        <thead>
             <tr>
-                <th>Name</th>
+                <th>Full Name</th>
                 <th>Address</th>
                 <th>Occupation</th>
                 <th>Purpose</th>
-                <th>Actions</th>
+                <th>Date Issued</th>
+                <th>Action</th>
             </tr>
+        </thead>
+        <tbody>
             {% for resident in residents %}
             <tr>
                 <td>{{ resident.full_name }}</td>
                 <td>{{ resident.address }}</td>
                 <td>{{ resident.occupation }}</td>
                 <td>{{ resident.purpose }}</td>
-                <td class="actions">
-                    <a href="/generate/{{ resident.id }}">Generate Certificate</a> |
-                    <a href="/delete/{{ resident.id }}">Delete</a>
+                <td>
+                    {% if resident.date_issued %}
+                        {{ resident.date_issued.strftime('%B %d, %Y') }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td><td>
+                    <a href="{{ url_for('generate', id=resident.id) }}">Generate Certificate</a>
+                    {% if current_user.role == 'admin' %}
+                        <!-- Delete button only for admins -->
+                        <form action="{{ url_for('delete_resident', id=resident.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" onclick="return confirm('Are you sure you want to delete this resident?');">Delete</button>
+                        </form>
+                    {% endif %}
+                </td>
                 </td>
             </tr>
             {% endfor %}
-        </table>
-        <a href="/">Back</a>
-    </div>
+        </tbody>
+    </table>
 </body>
 </html>

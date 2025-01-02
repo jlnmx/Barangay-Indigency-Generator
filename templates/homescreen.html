@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Screen</title>
 </head>
 <body>
-    <div class="homecontainer">
-        <h1>Home Screen</h1>
-        <a href="/residents" class="button">Search</a>
-        <a href="/add" class="button">Create New</a>
-        <a href="/analytics" class="button">View Analytics</a>
-        <a href="/">Back</a>
+    <div class="header">
+        <h1>Welcome, {{ current_user.username }}!</h1>
+        <a href="{{ url_for('logout') }}">Logout</a>
     </div>
+
+    <h2>Dashboard</h2>
+    {% if current_user.role == 'admin' %}
+    <p>You are an Admin.</p>
+    <ul>
+        <li><a href="{{ url_for('index') }}">Residents</a></li>
+        <li><a href="{{ url_for('add_resident') }}">Create</a></li>
+        <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
+        <li><a href="{{ url_for('manage_users') }}">Manage Users</a></li>
+    </ul>
+    {% elif current_user.role == 'user' %}
+    <p>You are a User.</p>
+    <ul>
+        <li><a href="{{ url_for('index') }}">Residents</a></li>
+        <li><a href="{{ url_for('add_resident') }}">Create</a></li>
+        <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
+    </ul>
+    {% endif %}
 </body>
 </html>

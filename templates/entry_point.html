@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barangay System</title>
+</head>
+<body>
+    <h1>Welcome to Barangay Indigency Certificate System</h1>
+    <p>Please select if you are a new or existing user:</p>
+    <div>
+        <a href="{{ url_for('register', role='user') }}">New User</a> | 
+        <a href="{{ url_for('login') }}">Existing User</a>
+    </div>
+    <p>If you're an admin, click below:</p>
+    <div>
+        <a href="{{ url_for('register', role='admin') }}">New Admin</a> | 
+        <a href="{{ url_for('login') }}">Existing Admin</a>
+    </div>
+</body>
+</html>

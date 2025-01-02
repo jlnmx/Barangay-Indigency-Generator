@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Report</title>
+</head>
+<body>
+    <h1>Analytics Report</h1>
+    <p><strong>Total Residents:</strong> {{ total_residents }}</p>
+
+    <h2>Purpose Distribution</h2>
+    <ul>
+        {% for purpose in purpose_data %}
+            <li>{{ purpose.label }}: {{ purpose.count }} ({{ purpose.percentage }}%)</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Occupation Distribution</h2>
+    <ul>
+        {% for occupation in occupation_data %}
+            <li>{{ occupation.label }}: {{ occupation.count }} ({{ occupation.percentage }}%)</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
