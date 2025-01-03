@@ -23,7 +23,7 @@
             margin-bottom: 30px;
         }
         canvas {
-            max-width: 400px; /* Limit chart size */
+            max-width: 400px; 
             max-height: 400px;
             margin: 10px;
         }
@@ -58,14 +58,19 @@
     </div>
 
     <script>
+        var purposeLabels = {{ purpose_labels|tojson }};
+        var purposeCounts = {{ purpose_counts|tojson }};
+        var occupationLabels = {{ occupation_labels|tojson }};
+        var occupationCounts = {{ occupation_counts|tojson }};
+
         var ctx1 = document.getElementById('purposeChart').getContext('2d');
         var purposeChart = new Chart(ctx1, {
             type: 'pie',
             data: {
-                labels: { purpose_labels , tojson },
+                labels: purposeLabels,
                 datasets: [{
                     label: 'Purpose Distribution',
-                    data: { purpose_counts , tojson },
+                    data: purposeCounts,
                     backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
                     borderColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
                     borderWidth: 1
@@ -81,10 +86,10 @@
         var occupationChart = new Chart(ctx2, {
             type: 'bar',
             data: {
-                labels: { occupation_labels , tojson },
+                labels: occupationLabels,
                 datasets: [{
                     label: 'Occupation Distribution',
-                    data: { occupation_counts,tojson },
+                    data: occupationCounts,
                     backgroundColor: '#42a5f5',
                     borderColor: '#1e88e5',
                     borderWidth: 1
