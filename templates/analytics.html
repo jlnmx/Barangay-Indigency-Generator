@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics</title>
@@ -61,10 +62,10 @@
         var purposeChart = new Chart(ctx1, {
             type: 'pie',
             data: {
-                labels: {{ purpose_labels|tojson }},
+                labels: { purpose_labels , tojson },
                 datasets: [{
                     label: 'Purpose Distribution',
-                    data: {{ purpose_counts|tojson }},
+                    data: { purpose_counts , tojson },
                     backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
                     borderColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
                     borderWidth: 1
@@ -80,10 +81,10 @@
         var occupationChart = new Chart(ctx2, {
             type: 'bar',
             data: {
-                labels: {{ occupation_labels|tojson }},
+                labels: { occupation_labels , tojson },
                 datasets: [{
                     label: 'Occupation Distribution',
-                    data: {{ occupation_counts|tojson }},
+                    data: { occupation_counts,tojson },
                     backgroundColor: '#42a5f5',
                     borderColor: '#1e88e5',
                     borderWidth: 1
