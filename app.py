@@ -66,14 +66,19 @@ def register(role):
     if request.method == 'POST':
         username = request.form['username']
         password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+        
         if Account.query.filter_by(username=username).first():
             flash('Username already exists!', 'danger')
             return redirect(url_for('register', role=role))
+        
         user = Account(username=username, password=password, role=role)
         db.session.add(user)
         db.session.commit()
-        flash('Account created successfully! Please log in.', 'success')
-        return redirect(url_for('login'))
+        
+        login_user(user)
+        flash('Account created successfully! You are now logged in.', 'success')
+        return redirect(url_for('home_screen'))
+    
     return render_template('register.html', role=role)
 
 @app.route('/login', methods=['GET', 'POST'])
