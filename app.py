@@ -9,10 +9,12 @@ import hashlib
 import logging
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///barangay.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
+
+
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -45,7 +47,7 @@ def generate_pdf_report(**data):
     try:
         config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
         html = render_template('analytics_report.html', **data)
-        pdf = pdfkit.from_string(html, False, configuration=config)
+        pdf = pdfkit.from_string(html, False, configuration=config, options={'enable-local-file-access': True})
         return BytesIO(pdf)
     except Exception as e:
         logging.error(f"Error generating report: {e}, Data: {data}")
@@ -149,6 +151,7 @@ def delete_resident(id):
 
 
 @app.route('/generate/<int:id>')
+@login_required
 def generate(id):
     resident = Resident.query.get_or_404(id)
     data = {
@@ -159,17 +162,24 @@ def generate(id):
         'date': datetime.now().strftime('%B %d, %Y')
     }
 
-    base_url = request.url_root
-
     try:
-        config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+        base_url = request.url_root.replace('localhost', '127.0.0.1')
         html = render_template('certificate_template.html', base_url=base_url, **data)
-        pdf = pdfkit.from_string(html, False, configuration=config)
+        config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+  
+        pdf = pdfkit.from_string(
+            html,
+            False,
+            configuration=config,
+            options={'enable-local-file-access': True}
+        )
         return send_file(BytesIO(pdf), as_attachment=True, download_name=f"Indigency_Certificate_{resident.full_name}.pdf")
     except Exception as e:
         logging.error(f"PDF generation failed: {e}")
-        flash("Error generating PDF. Please contact support.", "danger")
+        flash("An error occurred while generating the certificate.", "danger")
         return redirect(url_for('index'))
+
+
 
 @app.route('/analytics')
 def analytics():
