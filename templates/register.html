@@ -19,6 +19,15 @@
         </div>
         <button type="submit">Register</button>
     </form>
-    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    <p>Already have an account? 
+        <a href="{{ url_for('login', role=role) }}">Login here</a>
+    </p>
+    <p>
+        {% if role == 'admin' %}
+            Want to register as a user instead? <a href="{{ url_for('register', role='user') }}">Register here</a>
+        {% else %}
+            Want to register as an admin? <a href="{{ url_for('register', role='admin') }}">Register here</a>
+        {% endif %}
+    </p>
 </body>
 </html>

@@ -89,16 +89,21 @@ def register(role):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    role = request.args.get('role', 'user') 
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = Account.query.filter_by(username=username).first()
+        user = Account.query.filter_by(username=username, role=role).first()
+        
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
-            flash('Logged in successfully!', 'success')
+            flash(f"Welcome {user.username}!", "success")
             return redirect(url_for('home_screen'))
-        flash('Invalid credentials. Please try again.', 'danger')
-    return render_template('login.html')
+        else:
+            flash("Invalid credentials or role mismatch. Please try again.", "danger")
+    
+    return render_template('login.html', role=role)
+
 
 @app.route('/home')
 @login_required
@@ -125,53 +130,35 @@ def restrict_access():
             return redirect(url_for('home_screen'))
 
 
-@app.route('/approval', methods=['GET'])
+@app.route('/approval')
 @login_required
-def approval_page():
-    if current_user.role != 'admin':
-        flash('You are not authorized to view this page.', 'danger')
-        return redirect(url_for('home_screen'))
-
-    pending_residents = Resident.query.filter_by(status="pending").all()
+def approval():
+    pending_residents = Resident.query.filter_by(status='pending').all()
     return render_template('approval.html', residents=pending_residents)
 
-
-@app.route('/approve/<int:id>', methods=['POST'])
+@app.route('/approve/<int:resident_id>', methods=['POST'])
 @login_required
-def approve_resident(id):
-    if current_user.role != 'admin':
-        flash('You are not authorized to perform this action.', 'danger')
-        return redirect(url_for('home_screen'))
-
-    resident = Resident.query.get_or_404(id)
-    resident.status = "approved"
+def approve_request(resident_id):
+    resident = Resident.query.get_or_404(resident_id)
+    resident.status = 'approved'
     db.session.commit()
-    flash(f"Resident {resident.full_name}'s request has been approved.", 'success')
-    return redirect(url_for('approval_page'))
+    flash('Request approved successfully.', 'success')
+    return redirect(url_for('approval'))
 
-
-@app.route('/reject/<int:id>', methods=['POST'])
+@app.route('/reject/<int:resident_id>', methods=['POST'])
 @login_required
-def reject_resident(id):
-    if current_user.role != 'admin':
-        flash('You are not authorized to perform this action.', 'danger')
-        return redirect(url_for('home_screen'))
-
-    resident = Resident.query.get_or_404(id)
-    resident.status = "rejected"
+def reject_request(resident_id):
+    resident = Resident.query.get_or_404(resident_id)
+    resident.status = 'rejected'
     db.session.commit()
-    flash(f"Resident {resident.full_name}'s request has been rejected.", 'success')
-    return redirect(url_for('approval_page'))
+    flash('Request rejected successfully.', 'success')
+    return redirect(url_for('approval'))
 
 
-@app.route('/rejected_requests', methods=['GET'])
+@app.route('/rejected_requests')
 @login_required
 def rejected_requests():
-    if current_user.role != 'admin':
-        flash('You are not authorized to view this page.', 'danger')
-        return redirect(url_for('home_screen'))
-
-    rejected_residents = Resident.query.filter_by(status="rejected").all()
+    rejected_residents = Resident.query.filter_by(status='rejected').all()
     return render_template('rejected_requests.html', residents=rejected_residents)
 
 
@@ -181,7 +168,7 @@ def index():
     purpose_filter = request.args.get('purpose', '')
     date_issued = request.args.get('date_issued', None)
 
-    residents = Resident.query.filter_by(status="approved")  # Only approved residents shown
+    residents = Resident.query.filter_by(status="approved") 
 
     if query:
         residents = residents.filter(Resident.full_name.contains(query))

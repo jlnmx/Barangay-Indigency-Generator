@@ -7,7 +7,7 @@
     <title>Login</title>
 </head>
 <body>
-    <h1>Login</h1>
+    <h1>Login as a {{ role.capitalize() }}</h1>
     <form method="POST">
         <div>
             <label for="username">Username:</label>
@@ -19,6 +19,19 @@
         </div>
         <button type="submit">Login</button>
     </form>
-    <p>Don't have an account? <a href="{{ url_for('register', role='user') }}">Register here</a></p>
+    <p>Don't have an account? 
+        {% if role == 'admin' %}
+            <a href="{{ url_for('register', role='admin') }}">Register as an Admin</a>
+        {% else %}
+            <a href="{{ url_for('register', role='user') }}">Register as a User</a>
+        {% endif %}
+    </p>
+    <p>
+        {% if role == 'admin' %}
+            Want to login as a user instead? <a href="{{ url_for('login', role='user') }}">Click here</a>
+        {% else %}
+            Want to login as an admin instead? <a href="{{ url_for('login', role='admin') }}">Click here</a>
+        {% endif %}
+    </p>
 </body>
 </html>
