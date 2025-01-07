@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from io import BytesIO
 from datetime import datetime
+
 import pdfkit
 import hashlib
 import logging
@@ -17,9 +19,11 @@ app.secret_key = 'your_secret_key'
 
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -38,6 +42,8 @@ class Resident(db.Model):
     occupation = db.Column(db.String(100), nullable=False)
     purpose = db.Column(db.String(200), nullable=False)
     date_issued = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(10), default="pending")  # New field: pending, approved, rejected
+
 
 
 def hash_password(password):
@@ -119,14 +125,81 @@ def restrict_access():
             return redirect(url_for('home_screen'))
 
 
+@app.route('/approval', methods=['GET'])
+@login_required
+def approval_page():
+    if current_user.role != 'admin':
+        flash('You are not authorized to view this page.', 'danger')
+        return redirect(url_for('home_screen'))
+
+    pending_residents = Resident.query.filter_by(status="pending").all()
+    return render_template('approval.html', residents=pending_residents)
+
+
+@app.route('/approve/<int:id>', methods=['POST'])
+@login_required
+def approve_resident(id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to perform this action.', 'danger')
+        return redirect(url_for('home_screen'))
+
+    resident = Resident.query.get_or_404(id)
+    resident.status = "approved"
+    db.session.commit()
+    flash(f"Resident {resident.full_name}'s request has been approved.", 'success')
+    return redirect(url_for('approval_page'))
+
+
+@app.route('/reject/<int:id>', methods=['POST'])
+@login_required
+def reject_resident(id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to perform this action.', 'danger')
+        return redirect(url_for('home_screen'))
+
+    resident = Resident.query.get_or_404(id)
+    resident.status = "rejected"
+    db.session.commit()
+    flash(f"Resident {resident.full_name}'s request has been rejected.", 'success')
+    return redirect(url_for('approval_page'))
+
+
+@app.route('/rejected_requests', methods=['GET'])
+@login_required
+def rejected_requests():
+    if current_user.role != 'admin':
+        flash('You are not authorized to view this page.', 'danger')
+        return redirect(url_for('home_screen'))
+
+    rejected_residents = Resident.query.filter_by(status="rejected").all()
+    return render_template('rejected_requests.html', residents=rejected_residents)
+
+
 @app.route('/residents', methods=['GET'])
 def index():
     query = request.args.get('query', '')
+    purpose_filter = request.args.get('purpose', '')
+    date_issued = request.args.get('date_issued', None)
+
+    residents = Resident.query.filter_by(status="approved")  # Only approved residents shown
+
     if query:
-        residents = Resident.query.filter(Resident.full_name.contains(query)).all()
-    else:
-        residents = Resident.query.all()
-    return render_template('index.html', residents=residents, query=query)
+        residents = residents.filter(Resident.full_name.contains(query))
+    if purpose_filter:
+        residents = residents.filter(Resident.purpose.contains(purpose_filter))
+    if date_issued:
+        residents = residents.filter(db.func.date(Resident.date_issued) == date_issued)
+
+    residents = residents.all()
+    return render_template(
+        'index.html',
+        residents=residents,
+        query=query,
+        purpose_filter=purpose_filter,
+        date_issued=date_issued
+    )
+
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_resident():
