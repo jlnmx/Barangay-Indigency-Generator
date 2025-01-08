@@ -195,11 +195,15 @@ def add_resident():
         address = request.form['address']
         occupation = request.form['occupation']
         purpose = request.form['purpose']
+        
         resident = Resident(full_name=full_name, address=address, occupation=occupation, purpose=purpose)
         db.session.add(resident)
         db.session.commit()
-        return redirect(url_for('index'))
+
+        flash('Resident Record Added Successfully!', 'success')  # Flash success message
+        return redirect(url_for('add_resident'))
     return render_template('add_resident.html')
+
 
 @app.route('/delete/<int:id>', methods=['POST'])
 @login_required

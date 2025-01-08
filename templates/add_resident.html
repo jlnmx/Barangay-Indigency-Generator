@@ -12,6 +12,17 @@
         <a href="{{ url_for('home_screen') }}">Back to Home</a> |
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="messages">
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
     <form method="POST">
         <div>
             <label for="full_name">Full Name:</label>
@@ -31,5 +42,13 @@
         </div>
         <button type="submit">Add Resident</button>
     </form>
+
+    <div class="links">
+        <p>Quick Links:</p>
+        <ul>
+            <li><a href="{{ url_for('approval') }}">Go to Pending Approvals</a></li>
+            <li><a href="{{ url_for('rejected_requests') }}">View Rejected Requests</a></li>
+        </ul>
+    </div>
 </body>
 </html>
