@@ -5,8 +5,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barangay System</title>
+    <style>
+        a {
+        text-decoration: none;
+        color: #007BFF;
+    }
+        a:hover {
+        text-decoration: underline;
+    }
+        .body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        border: 1cm;
+        background-color: rgba(240, 248, 255, 0.808);
+        height: 800px;
+        width: 1600px;
+        padding: 1%;
+    }
+        body {
+            background-image: url("{{ base_url }}static/images/placeholderbg.jpg");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            background-color: rgba(255,255,255,0.6);
+        background-blend-mode: lighten;
+        }
+    </style>
 </head>
 <body>
+    <div class="body">
     <h1>Welcome to Barangay Indigency Certificate System</h1>
     <p>Please select if you are a new or existing user:</p>
     <div>
@@ -17,6 +44,7 @@
     <div>
         <a href="{{ url_for('register', role='admin') }}">New Admin</a> | 
         <a href="{{ url_for('login') }}">Existing Admin</a>
+    </div>
     </div>
 </body>
 </html>

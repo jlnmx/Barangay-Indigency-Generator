@@ -5,6 +5,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Resident</title>
+    <style>
+        a {
+        text-decoration: none;
+        color: #007BFF;
+        }
+        a:hover {
+        text-decoration: underline;
+        }
+        body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        }
+        button {
+        width: 21%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        }
+        label {
+        display: block;
+        margin: 10px 0 5px;
+        }
+        input[type="text"] {
+            width: 20%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 1px;
+        }
+        input[type="password"] {
+            width: 20%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 1px;
+        }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -24,7 +65,7 @@
     {% endwith %}
     
     <form method="POST">
-        <div>
+        <div
             <label for="full_name">Full Name:</label>
             <input type="text" name="full_name" required>
         </div>
