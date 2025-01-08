@@ -1,69 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Residents</title>
     <style>
-    a {
-    text-decoration: none;
-    color: #007BFF;
-    }
-    a:hover {
-    text-decoration: underline;
-    }
-    body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    }
-    button {
-    width: 21%;
-            padding: 10px;
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        button {
+            padding: 8px 12px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-    th, td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: left;
-    }
-    th {
-        background-color: #007BFF;
-        color: white;
-    }
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-    .actions a {
-        margin-right: 10px;
-        color: #007BFF;
-        font-weight: bold;
-    }
-    .actions a:hover {
-        color: #0056b3;
-    }
-    input[type="text"] {
-        width: 20%;
-        padding: 8px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 1px;
-    }
-    label {
-        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-        font-size: 150%;
-        display: inline;
-    }
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        input[type="text"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .edit-btn, .save-btn {
+            margin-right: 5px;
+        }
+        .save-btn {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -72,64 +65,105 @@
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
     <h1>Residents</h1>
-
-    <!-- Search and Filtering Form -->
     <form method="GET" action="{{ url_for('index') }}">
-        <div class="form-group">
-            <label for="query">Search by Name:</label>
-            <input type="text" id="query" name="query" value="{{ query }}" placeholder="Enter name">
-        </div>
-        <div class="form-group">
-            <label for="purpose">Filter by Purpose:</label>
-            <input type="text" id="purpose" name="purpose" value="{{ purpose_filter }}" placeholder="Enter purpose">
-        </div>
-        <div class="form-group">
-            <label for="date_issued">Search by Date Issued:</label>
-            <input type="date" id="date_issued" name="date_issued" value="{{ date_issued }}">
-        </div>
+        <input type="text" name="query" placeholder="Search by name" value="{{ query }}">
+        <select name="purpose">
+            <option value="">All Purposes</option>
+            {% for purpose in purposes %}
+            <option value="{{ purpose }}" {% if purpose_filter == purpose %}selected{% endif %}>{{ purpose }}</option>
+            {% endfor %}
+        </select>
         <button type="submit">Search</button>
     </form>
 
-    <hr>
-
-    <!-- Residents Table -->
-    <table border="1">
+    <table>
         <thead>
             <tr>
                 <th>Full Name</th>
                 <th>Address</th>
                 <th>Occupation</th>
                 <th>Purpose</th>
-                <th>Date Issued</th>
-                <th>Action</th>
+                <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="resident-table">
             {% for resident in residents %}
-            <tr>
-                <td>{{ resident.full_name }}</td>
-                <td>{{ resident.address }}</td>
-                <td>{{ resident.occupation }}</td>
-                <td>{{ resident.purpose }}</td>
+            <tr id="row-{{ resident.id }}">
                 <td>
-                    {% if resident.date_issued %}
-                        {{ resident.date_issued.strftime('%B %d, %Y') }}
-                    {% else %}
-                        N/A
-                    {% endif %}
+                    <span class="view-mode">{{ resident.full_name }}</span>
+                    <input type="text" class="edit-mode" value="{{ resident.full_name }}" style="display: none;">
                 </td>
                 <td>
+                    <span class="view-mode">{{ resident.address }}</span>
+                    <input type="text" class="edit-mode" value="{{ resident.address }}" style="display: none;">
+                </td>
+                <td>
+                    <span class="view-mode">{{ resident.occupation }}</span>
+                    <input type="text" class="edit-mode" value="{{ resident.occupation }}" style="display: none;">
+                </td>
+                <td>
+                    <span class="view-mode">{{ resident.purpose }}</span>
+                    <input type="text" class="edit-mode" value="{{ resident.purpose }}" style="display: none;">
+                </td>
+                <td>
+                    <button class="edit-btn" onclick="editRow({{ resident.id }})">Edit</button>
+                    <button class="save-btn" onclick="saveRow({{ resident.id }})">Save</button>
                     <a href="{{ url_for('generate', id=resident.id) }}">Generate Certificate</a>
-                    {% if current_user.role == 'admin' %}
-                        <!-- Delete button only for admins -->
-                        <form action="{{ url_for('delete_resident', id=resident.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" onclick="return confirm('Are you sure you want to delete this resident?');">Delete</button>
-                        </form>
-                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <script>
+        function editRow(rowId) {
+            const row = document.getElementById(`row-${rowId}`);
+            row.querySelectorAll('.view-mode').forEach(el => el.style.display = 'none');
+            row.querySelectorAll('.edit-mode').forEach(el => el.style.display = 'inline');
+            row.querySelector('.edit-btn').style.display = 'none';
+            row.querySelector('.save-btn').style.display = 'inline';
+            row.querySelector('.edit-mode').focus(); // Focus on the first input field
+        }
+
+        function saveRow(rowId) {
+            const row = document.getElementById(`row-${rowId}`);
+            const fullName = row.querySelectorAll('.edit-mode')[0].value.trim();
+            const address = row.querySelectorAll('.edit-mode')[1].value.trim();
+            const occupation = row.querySelectorAll('.edit-mode')[2].value.trim();
+            const purpose = row.querySelectorAll('.edit-mode')[3].value.trim();
+
+            const data = { full_name: fullName, address, occupation, purpose };
+
+            fetch(`/update_resident/${rowId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Update view mode text
+                    row.querySelectorAll('.view-mode')[0].innerText = fullName;
+                    row.querySelectorAll('.view-mode')[1].innerText = address;
+                    row.querySelectorAll('.view-mode')[2].innerText = occupation;
+                    row.querySelectorAll('.view-mode')[3].innerText = purpose;
+
+                    // Switch back to view mode
+                    row.querySelectorAll('.view-mode').forEach(el => el.style.display = 'inline');
+                    row.querySelectorAll('.edit-mode').forEach(el => el.style.display = 'none');
+                    row.querySelector('.edit-btn').style.display = 'inline';
+                    row.querySelector('.save-btn').style.display = 'none';
+
+                    alert('Resident details updated successfully!');
+                } else {
+                    alert('Failed to update resident details. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again later.');
+            });
+        }
+    </script>
 </body>
 </html>

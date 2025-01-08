@@ -7,43 +7,49 @@
     <title>Home Screen</title>
     <style>
         a {
-        text-decoration: none;
-        color: #007BFF;
+            text-decoration: none;
+            color: #007BFF;
         }
         a:hover {
-        text-decoration: underline;
+            text-decoration: underline;
         }
         .body {
-        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-        font-size: 130%;
-        margin: 10px;
-        justify-content: center;
-        align-items: center;
-        border: 1cm;
-        background-color: rgba(240, 248, 255, 0.808);
-        height: 500px;
-        width: 1200px;
-        padding: 1%;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-size: 130%;
+            margin: 10px;
+            justify-content: center;
+            align-items: center;
+            border: 1cm;
+            background-color: rgba(240, 248, 255, 0.808);
+            height: 500px;
+            width: 1200px;
+            padding: 1%;
+            overflow-y: scroll;
         }
-        .homescreen{
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100px;
-        background-color: #00244b9a;
-    }
+        .homescreen {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            background-color: #00244b9a;
+        }
         body {
-            background-image: url("{{ base_url }}static/images/placeholderbg.jpg");
+            background-image: url("{{ url_for('static', filename='images/placeholderbg.jpg') }}");
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-size: cover;
             background-color: rgba(255,255,255,0.6);
-        background-blend-mode: lighten;
+            background-blend-mode: lighten;
         }
-        
+        .pending-approvals {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: white;
+        }
     </style>
 </head>
 <body>
@@ -53,27 +59,39 @@
     </div>
 
     <div class="body">
-    <h2>Dashboard</h2>
-    {% if current_user.role == 'admin' %}
-    <p>You are an Admin.</p>
-    <ul>
-        <li><a href="{{ url_for('index') }}">Residents</a></li>
-        <li><a href="{{ url_for('add_resident') }}">Create</a></li>
-        <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
-        <li><a href="{{ url_for('manage_users') }}">Manage Users</a></li>
-        <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
-        <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
-    </ul>
-    {% elif current_user.role == 'user' %}
-    <p>You are a User.</p>
-    <ul>
-        <li><a href="{{ url_for('index') }}">Residents</a></li>
-        <li><a href="{{ url_for('add_resident') }}">Create</a></li>
-        <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
-        <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
-        <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
-    </ul>
-    {% endif %}
+        <h2>Dashboard</h2>
+        {% if current_user.role == 'admin' %}
+        <p>You are an Admin.</p>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Residents</a></li>
+            <li><a href="{{ url_for('add_resident') }}">Create</a></li>
+            <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
+            <li><a href="{{ url_for('manage_users') }}">Manage Users</a></li>
+            <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
+            <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
+        </ul>
+        <div class="pending-approvals">
+            <h3>Pending Approval Logs</h3>
+            {% if pending_approvals %}
+                <ul>
+                    {% for approval in pending_approvals %}
+                        <li>{{ approval.full_name }} - {{ approval.address }} - {{ approval.occupation }} - {{ approval.purpose }} - {{ approval.date_requested.strftime('%B %d, %Y %H:%M:%S') }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No pending approvals.</p>
+            {% endif %}
+        </div>
+        {% elif current_user.role == 'user' %}
+        <p>You are a User.</p>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Residents</a></li>
+            <li><a href="{{ url_for('add_resident') }}">Create</a></li>
+            <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
+            <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
+            <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
+        </ul>
+        {% endif %}
     </div>
 </body>
 </html>
