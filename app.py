@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from io import BytesIO
 from datetime import datetime
+
 import pdfkit
 import hashlib
 import logging
@@ -17,9 +19,11 @@ app.secret_key = 'your_secret_key'
 
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -38,6 +42,8 @@ class Resident(db.Model):
     occupation = db.Column(db.String(100), nullable=False)
     purpose = db.Column(db.String(200), nullable=False)
     date_issued = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(10), default="pending")  # New field: pending, approved, rejected
+
 
 
 def hash_password(password):
@@ -83,16 +89,21 @@ def register(role):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    role = request.args.get('role', 'user') 
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = Account.query.filter_by(username=username).first()
+        user = Account.query.filter_by(username=username, role=role).first()
+        
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
-            flash('Logged in successfully!', 'success')
+            flash(f"Welcome {user.username}!", "success")
             return redirect(url_for('home_screen'))
-        flash('Invalid credentials. Please try again.', 'danger')
-    return render_template('login.html')
+        else:
+            flash("Invalid credentials or role mismatch. Please try again.", "danger")
+    
+    return render_template('login.html', role=role)
+
 
 @app.route('/home')
 @login_required
@@ -119,14 +130,63 @@ def restrict_access():
             return redirect(url_for('home_screen'))
 
 
+@app.route('/approval')
+@login_required
+def approval():
+    pending_residents = Resident.query.filter_by(status='pending').all()
+    return render_template('approval.html', residents=pending_residents)
+
+@app.route('/approve/<int:resident_id>', methods=['POST'])
+@login_required
+def approve_request(resident_id):
+    resident = Resident.query.get_or_404(resident_id)
+    resident.status = 'approved'
+    db.session.commit()
+    flash('Request approved successfully.', 'success')
+    return redirect(url_for('approval'))
+
+@app.route('/reject/<int:resident_id>', methods=['POST'])
+@login_required
+def reject_request(resident_id):
+    resident = Resident.query.get_or_404(resident_id)
+    resident.status = 'rejected'
+    db.session.commit()
+    flash('Request rejected successfully.', 'success')
+    return redirect(url_for('approval'))
+
+
+@app.route('/rejected_requests')
+@login_required
+def rejected_requests():
+    rejected_residents = Resident.query.filter_by(status='rejected').all()
+    return render_template('rejected_requests.html', residents=rejected_residents)
+
+
 @app.route('/residents', methods=['GET'])
 def index():
     query = request.args.get('query', '')
+    purpose_filter = request.args.get('purpose', '')
+    date_issued = request.args.get('date_issued', None)
+
+    residents = Resident.query.filter_by(status="approved") 
+
     if query:
-        residents = Resident.query.filter(Resident.full_name.contains(query)).all()
-    else:
-        residents = Resident.query.all()
-    return render_template('index.html', residents=residents, query=query)
+        residents = residents.filter(Resident.full_name.contains(query))
+    if purpose_filter:
+        residents = residents.filter(Resident.purpose.contains(purpose_filter))
+    if date_issued:
+        residents = residents.filter(db.func.date(Resident.date_issued) == date_issued)
+
+    residents = residents.all()
+    return render_template(
+        'index.html',
+        residents=residents,
+        query=query,
+        purpose_filter=purpose_filter,
+        date_issued=date_issued
+    )
+
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_resident():
@@ -135,11 +195,15 @@ def add_resident():
         address = request.form['address']
         occupation = request.form['occupation']
         purpose = request.form['purpose']
+        
         resident = Resident(full_name=full_name, address=address, occupation=occupation, purpose=purpose)
         db.session.add(resident)
         db.session.commit()
-        return redirect(url_for('index'))
+
+        flash('Resident Record Added Successfully!', 'success')  # Flash success message
+        return redirect(url_for('add_resident'))
     return render_template('add_resident.html')
+
 
 @app.route('/delete/<int:id>', methods=['POST'])
 @login_required

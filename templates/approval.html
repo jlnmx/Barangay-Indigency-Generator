@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approval Page</title>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('home_screen') }}">Back to Home</a> | 
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <h1>Approval Page</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Address</th>
+                <th>Occupation</th>
+                <th>Purpose</th>
+                <th>Date Issued</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for resident in residents %}
+            <tr>
+                <td>{{ resident.full_name }}</td>
+                <td>{{ resident.address }}</td>
+                <td>{{ resident.occupation }}</td>
+                <td>{{ resident.purpose }}</td>
+                <td>
+                    {% if resident.date_issued %}
+                        {{ resident.date_issued.strftime('%B %d, %Y') }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="{{ url_for('approve_request', resident_id=resident.id) }}" method="POST" style="display:inline;">
+                        <button type="submit">Approve</button>
+                    </form>
+                    <form action="{{ url_for('reject_request', resident_id=resident.id) }}" method="POST" style="display:inline;">
+                        <button type="submit">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

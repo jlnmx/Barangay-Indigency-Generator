@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejected Requests</title>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('home_screen') }}">Back to Home</a> | 
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <h1>Rejected Requests</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Address</th>
+                <th>Occupation</th>
+                <th>Purpose</th>
+                <th>Date Issued</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for resident in residents %}
+            <tr>
+                <td>{{ resident.full_name }}</td>
+                <td>{{ resident.address }}</td>
+                <td>{{ resident.occupation }}</td>
+                <td>{{ resident.purpose }}</td>
+                <td>
+                    {% if resident.date_issued %}
+                        {{ resident.date_issued.strftime('%B %d, %Y') }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

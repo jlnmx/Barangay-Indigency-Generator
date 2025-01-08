@@ -61,6 +61,8 @@
         <li><a href="{{ url_for('add_resident') }}">Create</a></li>
         <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
         <li><a href="{{ url_for('manage_users') }}">Manage Users</a></li>
+        <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
+        <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
     </ul>
     {% elif current_user.role == 'user' %}
     <p>You are a User.</p>
@@ -68,6 +70,8 @@
         <li><a href="{{ url_for('index') }}">Residents</a></li>
         <li><a href="{{ url_for('add_resident') }}">Create</a></li>
         <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
+        <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
+        <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
     </ul>
     {% endif %}
     </div>
