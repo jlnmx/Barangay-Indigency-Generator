@@ -1,11 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from io import BytesIO
 from datetime import datetime
-
 import pdfkit
 import hashlib
 import logging
@@ -16,14 +15,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///barangay.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
 
-
-
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -33,7 +29,7 @@ class Account(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.String(10), nullable=False) 
+    role = db.Column(db.String(10), nullable=False)
 
 class Resident(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,10 +37,21 @@ class Resident(db.Model):
     address = db.Column(db.String(200), nullable=False)
     occupation = db.Column(db.String(100), nullable=False)
     purpose = db.Column(db.String(200), nullable=False)
-    date_issued = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(10), default="pending")  # New field: pending, approved, rejected
+    date_requested = db.Column(db.DateTime, default=datetime.utcnow)
+    date_issued = db.Column(db.DateTime)
+    status = db.Column(db.String(20), default='pending')  # 'pending', 'approved', 'rejected'
 
+    def __repr__(self):
+        return f'<Resident {self.full_name}>'
 
+    def __init__(self, full_name, address, occupation, purpose, date_requested=None):
+        self.full_name = full_name
+        self.address = address
+        self.occupation = occupation
+        self.purpose = purpose
+        if date_requested is None:
+            date_requested = datetime.utcnow()
+        self.date_requested = date_requested
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -58,7 +65,6 @@ def generate_pdf_report(**data):
     except Exception as e:
         logging.error(f"Error generating report: {e}, Data: {data}")
         raise
-    
 
 @app.route('/')
 def entry_point():
@@ -104,11 +110,11 @@ def login():
     
     return render_template('login.html', role=role)
 
-
 @app.route('/home')
 @login_required
 def home_screen():
-    return render_template('HomeScreen.html', role=current_user.role)
+    pending_approvals = Resident.query.filter_by(status='pending').all()
+    return render_template('HomeScreen.html', role=current_user.role, pending_approvals=pending_approvals)
 
 @app.route('/logout')
 def logout():
@@ -128,7 +134,6 @@ def restrict_access():
         if request.endpoint in restricted_routes.get(current_user.role, []):
             flash('You are not authorized to access this page.', 'danger')
             return redirect(url_for('home_screen'))
-
 
 @app.route('/approval')
 @login_required
@@ -154,39 +159,57 @@ def reject_request(resident_id):
     flash('Request rejected successfully.', 'success')
     return redirect(url_for('approval'))
 
-
 @app.route('/rejected_requests')
 @login_required
 def rejected_requests():
     rejected_residents = Resident.query.filter_by(status='rejected').all()
     return render_template('rejected_requests.html', residents=rejected_residents)
 
-
 @app.route('/residents', methods=['GET'])
 def index():
     query = request.args.get('query', '')
     purpose_filter = request.args.get('purpose', '')
-    date_issued = request.args.get('date_issued', None)
 
-    residents = Resident.query.filter_by(status="approved") 
+    residents = Resident.query.filter_by(status="approved")
 
     if query:
         residents = residents.filter(Resident.full_name.contains(query))
     if purpose_filter:
-        residents = residents.filter(Resident.purpose.contains(purpose_filter))
-    if date_issued:
-        residents = residents.filter(db.func.date(Resident.date_issued) == date_issued)
+        residents = residents.filter(Resident.purpose == purpose_filter)
 
     residents = residents.all()
+
+    purposes = [purpose[0] for purpose in db.session.query(Resident.purpose).distinct().all()]
+
     return render_template(
         'index.html',
         residents=residents,
         query=query,
         purpose_filter=purpose_filter,
-        date_issued=date_issued
+        purposes=purposes,
     )
 
+@app.route('/update_resident/<int:id>', methods=['POST'])
+@login_required
+def update_resident(id):
+    data = request.get_json()  
+    resident = Resident.query.get_or_404(id)
 
+    try:
+        if 'full_name' in data:
+            resident.full_name = data['full_name']
+        if 'address' in data:
+            resident.address = data['address']
+        if 'occupation' in data:
+            resident.occupation = data['occupation']
+        if 'purpose' in data:
+            resident.purpose = data['purpose']
+
+        db.session.commit()  
+        return jsonify({"success": True, "message": "Resident updated successfully"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": "An error occurred while updating the resident."}), 500
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_resident():
@@ -195,15 +218,20 @@ def add_resident():
         address = request.form['address']
         occupation = request.form['occupation']
         purpose = request.form['purpose']
-        
-        resident = Resident(full_name=full_name, address=address, occupation=occupation, purpose=purpose)
-        db.session.add(resident)
-        db.session.commit()
+        date_requested = datetime.now()
 
-        flash('Resident Record Added Successfully!', 'success')  # Flash success message
-        return redirect(url_for('add_resident'))
+        new_resident = Resident(full_name=full_name, address=address, occupation=occupation, purpose=purpose, date_requested=date_requested)
+
+        try:
+            db.session.add(new_resident)
+            db.session.commit()
+            flash("Resident added successfully", "success")
+            return redirect(url_for('add_resident'))
+        except Exception as e:
+            db.session.rollback()
+            flash("An error occurred while adding the resident.", "danger")
+            return redirect(url_for('add_resident'))
     return render_template('add_resident.html')
-
 
 @app.route('/delete/<int:id>', methods=['POST'])
 @login_required
@@ -218,24 +246,26 @@ def delete_resident(id):
     flash(f"Resident {resident.full_name} has been deleted.", 'success')
     return redirect(url_for('index'))
 
-
 @app.route('/generate/<int:id>')
 @login_required
 def generate(id):
     resident = Resident.query.get_or_404(id)
+    resident.date_issued = datetime.now()
+    db.session.commit()
+
     data = {
         'full_name': resident.full_name,
         'address': resident.address,
         'occupation': resident.occupation,
         'purpose': resident.purpose,
-        'date': datetime.now().strftime('%B %d, %Y')
+        'date': resident.date_issued.strftime('%B %d, %Y')
     }
 
     try:
         base_url = request.url_root.replace('localhost', '127.0.0.1')
         html = render_template('certificate_template.html', base_url=base_url, **data)
         config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
-  
+
         pdf = pdfkit.from_string(
             html,
             False,
@@ -247,8 +277,6 @@ def generate(id):
         logging.error(f"PDF generation failed: {e}")
         flash("An error occurred while generating the certificate.", "danger")
         return redirect(url_for('index'))
-
-
 
 @app.route('/analytics')
 def analytics():
@@ -347,9 +375,6 @@ def delete_user(user_id):
     db.session.commit()
     flash(f"User {user.username} has been deleted.", 'success')
     return redirect(url_for('manage_users'))
-
-
-
 
 if __name__ == '__main__':
     if not os.path.exists('barangay.db'):
