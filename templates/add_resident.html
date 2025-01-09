@@ -64,15 +64,24 @@
         {% endif %}
     {% endwith %}
     
-    <form method="POST">
-        <div
+    <form method="POST" onsubmit="combineAddress()">
+        <div>
             <label for="full_name">Full Name:</label>
             <input type="text" name="full_name" required>
         </div>
         <div>
-            <label for="address">Address:</label>
-            <input type="text" name="address" required>
+            <label for="house_no">House No.:</label>
+            <input type="text" id="house_no" required>
         </div>
+        <div>
+            <label for="street">Street:</label>
+            <input type="text" id="street" required>
+        </div>
+        <div>
+            <label for="zone_purok">Zone/Purok:</label>
+            <input type="text" id="zone_purok" required>
+        </div>
+        <input type="hidden" name="address" id="address">
         <div>
             <label for="occupation">Occupation:</label>
             <input type="text" name="occupation" required>
@@ -91,5 +100,15 @@
             <li><a href="{{ url_for('rejected_requests') }}">View Rejected Requests</a></li>
         </ul>
     </div>
+
+    <script>
+        function combineAddress() {
+            const houseNo = document.getElementById('house_no').value;
+            const street = document.getElementById('street').value;
+            const zonePurok = document.getElementById('zone_purok').value;
+            const address = `${houseNo}  ${street}  ${zonePurok}`;
+            document.getElementById('address').value = address;
+        }
+    </script>
 </body>
 </html>
