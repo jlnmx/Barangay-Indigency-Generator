@@ -21,7 +21,9 @@
                     <th>Occupation</th>
                     <th>Purpose</th>
                     <th>Date Requested</th>
+                    {% if current_user.role == 'admin' %}
                     <th>Actions</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +34,7 @@
                     <td>{{ resident.occupation }}</td>
                     <td>{{ resident.purpose }}</td>
                     <td>{{ resident.date_requested.strftime('%B %d, %Y %H:%M:%S') }}</td>
+                    {% if current_user.role == 'admin' %}
                     <td>
                         <form action="{{ url_for('approve_request', resident_id=resident.id) }}" method="post" style="display:inline;">
                             <button type="submit">Approve</button>
@@ -40,6 +43,7 @@
                             <button type="submit">Reject</button>
                         </form>
                     </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>

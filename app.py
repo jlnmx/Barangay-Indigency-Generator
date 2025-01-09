@@ -144,6 +144,10 @@ def approval():
 @app.route('/approve/<int:resident_id>', methods=['POST'])
 @login_required
 def approve_request(resident_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to approve requests.', 'danger')
+        return redirect(url_for('approval'))
+
     resident = Resident.query.get_or_404(resident_id)
     resident.status = 'approved'
     db.session.commit()
@@ -153,6 +157,10 @@ def approve_request(resident_id):
 @app.route('/reject/<int:resident_id>', methods=['POST'])
 @login_required
 def reject_request(resident_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to reject requests.', 'danger')
+        return redirect(url_for('approval'))
+
     resident = Resident.query.get_or_404(resident_id)
     resident.status = 'rejected'
     db.session.commit()
