@@ -19,23 +19,17 @@
                 <th>Address</th>
                 <th>Occupation</th>
                 <th>Purpose</th>
-                <th>Date Issued</th>
+                <th>Date Requested</th>
             </tr>
         </thead>
         <tbody>
-            {% for resident in residents %}
+            {% for resident in rejected_residents %}
             <tr>
                 <td>{{ resident.full_name }}</td>
                 <td>{{ resident.address }}</td>
                 <td>{{ resident.occupation }}</td>
                 <td>{{ resident.purpose }}</td>
-                <td>
-                    {% if resident.date_issued %}
-                        {{ resident.date_issued.strftime('%B %d, %Y') }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </td>
+                <td>{{ resident.date_requested.strftime('%Y-%m-%d %H:%M:%S') }}</td>
             </tr>
             {% endfor %}
         </tbody>

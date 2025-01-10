@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
@@ -14,8 +15,14 @@ app = Flask(__name__, static_folder='static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///barangay.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Update with your SMTP server
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'sabandojullian@gmail.com'  # Update with your email
+app.config['MAIL_PASSWORD'] = 'aqhx djxp hkoi woje'
 
 db = SQLAlchemy(app)
+mail = Mail(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -37,7 +44,7 @@ class Resident(db.Model):
     address = db.Column(db.String(200), nullable=False)
     occupation = db.Column(db.String(100), nullable=False)
     purpose = db.Column(db.String(200), nullable=False)
-    date_requested = db.Column(db.DateTime, default=datetime.utcnow)
+    date_requested = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     date_issued = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='pending')  # 'pending', 'approved', 'rejected'
 
@@ -171,7 +178,7 @@ def reject_request(resident_id):
 @login_required
 def rejected_requests():
     rejected_residents = Resident.query.filter_by(status='rejected').all()
-    return render_template('rejected_requests.html', residents=rejected_residents)
+    return render_template('rejected_requests.html', rejected_residents=rejected_residents)
 
 @app.route('/residents', methods=['GET'])
 def index():
@@ -226,19 +233,21 @@ def add_resident():
         address = request.form['address']
         occupation = request.form['occupation']
         purpose = request.form['purpose']
-        date_requested = datetime.now()
 
-        new_resident = Resident(full_name=full_name, address=address, occupation=occupation, purpose=purpose, date_requested=date_requested)
+        new_resident = Resident(full_name=full_name, address=address, occupation=occupation, purpose=purpose)
+        db.session.add(new_resident)
+        db.session.commit()
 
         try:
-            db.session.add(new_resident)
-            db.session.commit()
-            flash("Resident added successfully", "success")
-            return redirect(url_for('add_resident'))
+            msg = Message('New Pending Resident Indigency Request Added', sender='sabandojullian@gmail.com', recipients=['ajlabre14@gmail.com'])
+            msg.body = f'A new resident has been added:\n\nFull Name: {full_name}\nAddress: {address}\nOccupation: {occupation}\nPurpose: {purpose}'
+            mail.send(msg)
         except Exception as e:
-            db.session.rollback()
-            flash("An error occurred while adding the resident.", "danger")
-            return redirect(url_for('add_resident'))
+            flash(f'Failed to send email notification: {str(e)}', 'danger')
+
+        flash('Resident added successfully!', 'success')
+        return redirect(url_for('home_screen'))
+
     return render_template('add_resident.html')
 
 @app.route('/delete/<int:id>', methods=['POST'])
