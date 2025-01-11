@@ -31,14 +31,7 @@
         display: block;
         margin: 10px 0 5px;
         }
-        input[type="text"] {
-            width: 20%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 1px;
-        }
-        input[type="password"] {
+        input[type="text"], select {
             width: 20%;
             padding: 8px;
             margin-bottom: 15px;
@@ -88,7 +81,13 @@
         </div>
         <div>
             <label for="purpose">Purpose:</label>
-            <input type="text" name="purpose" required>
+            <select name="purpose" required>
+                <option value="burial">Burial</option>
+                <option value="financial">Financial</option>
+                <option value="medical">Medical</option>
+                <option value="scholarship">Scholarship</option>
+                <option value="job">Job</option>
+            </select>
         </div>
         <button type="submit">Add Resident</button>
     </form>
