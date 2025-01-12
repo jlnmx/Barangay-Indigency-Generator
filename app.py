@@ -113,7 +113,7 @@ def login():
             flash(f"Welcome {user.username}!", "success")
             return redirect(url_for('home_screen'))
         else:
-            flash("Invalid credentials or role mismatch. Please try again.", "danger")
+            flash("Incorrect username or password or role mismatch. Please try again.", "danger")
     
     return render_template('login.html', role=role)
 
@@ -236,17 +236,20 @@ def add_resident():
 
         new_resident = Resident(full_name=full_name, address=address, occupation=occupation, purpose=purpose)
         db.session.add(new_resident)
-        db.session.commit()
-
         try:
-            msg = Message('New Pending Resident Indigency Request Added', sender='sabandojullian@gmail.com', recipients=['ajlabre14@gmail.com'])
-            msg.body = f'A new resident has been added:\n\nFull Name: {full_name}\nAddress: {address}\nOccupation: {occupation}\nPurpose: {purpose}'
-            mail.send(msg)
+            db.session.commit()
+            try:
+                msg = Message('New Pending Resident Indigency Request Added', sender='sabandojullian@gmail.com', recipients=['ajlabre14@gmail.com'])
+                msg.body = f'A new resident has been added:\n\nFull Name: {full_name}\nAddress: {address}\nOccupation: {occupation}\nPurpose: {purpose}'
+                mail.send(msg)
+                flash('Resident added successfully!', 'success')
+            except Exception as e:
+                flash(f'Failed to send email notification: {str(e)}', 'danger')
         except Exception as e:
-            flash(f'Failed to send email notification: {str(e)}', 'danger')
+            db.session.rollback()
+            flash(f'Failed to add resident: {str(e)}', 'danger')
 
-        flash('Resident added successfully!', 'success')
-        return redirect(url_for('home_screen'))
+        return render_template('add_resident.html')
 
     return render_template('add_resident.html')
 
