@@ -50,12 +50,19 @@
             padding: 10px;
             background-color: white;
         }
+        .logout {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 2em;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="homescreen">
         <h1>Welcome, {{ current_user.username }}!</h1>
-        <a href="{{ url_for('logout') }}">Logout</a>
+        <a class="logout"href="{{ url_for('logout') }}">Logout</a>
     </div>
 
     <div class="body">
