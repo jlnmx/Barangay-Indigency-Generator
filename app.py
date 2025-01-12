@@ -134,7 +134,7 @@ def restrict_access():
     if current_user.is_authenticated:
         restricted_routes = {
             'admin': [], 
-            'user': ['delete_resident', 'manage_users'],  
+            'user': ['manage_users'],  
         }
         if current_user.role not in restricted_routes:
             return
@@ -250,17 +250,12 @@ def add_resident():
 
     return render_template('add_resident.html')
 
-@app.route('/delete/<int:id>', methods=['POST'])
-@login_required
-def delete_resident(id):
-    if current_user.role != 'admin':
-        flash('You are not authorized to delete residents.', 'danger')
-        return redirect(url_for('index'))
-
-    resident = Resident.query.get_or_404(id)
+@app.route('/delete/<int:resident_id>', methods=['POST'])
+def delete_resident(resident_id):
+    resident = Resident.query.get_or_404(resident_id)
     db.session.delete(resident)
     db.session.commit()
-    flash(f"Resident {resident.full_name} has been deleted.", 'success')
+    flash(f'Resident {resident.full_name} has been deleted successfully.', 'success')
     return redirect(url_for('index'))
 
 @app.route('/generate/<int:id>')
