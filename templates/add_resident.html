@@ -70,10 +70,10 @@
         {% endif %}
     {% endwith %}
     <div class="body">
-        <form method="POST" onsubmit="combineAddress()">
+        <form method="POST" onsubmit="return validateForm()">
             <div>
                 <label for="full_name">Full Name:</label>
-                <input type="text" name="full_name" required>
+                <input type="text" name="full_name" id="full_name" required>
             </div>
             <div>
                 <label for="house_no">House No.:</label>
@@ -90,7 +90,7 @@
             <input type="hidden" name="address" id="address">
             <div>
                 <label for="occupation">Occupation:</label>
-                <input type="text" name="occupation" required>
+                <input type="text" name="occupation" id="occupation" required>
             </div>
             <div>
                 <label for="purpose">Purpose:</label>
@@ -120,6 +120,26 @@
             const zonePurok = document.getElementById('zone_purok').value;
             const address = `${houseNo} ${street} ${zonePurok}`;
             document.getElementById('address').value = address;
+        }
+
+        function validateForm() {
+            const fullName = document.getElementById('full_name').value;
+            const occupation = document.getElementById('occupation').value;
+            const namePattern = /^[a-zA-Z\s.]+$/;
+            const occupationPattern = /^[a-zA-Z\s.]+$/;
+
+            if (!namePattern.test(fullName)) {
+                alert('Invalid Input for Name.');
+                return false;
+            }
+
+            if (!occupationPattern.test(occupation)) {
+                alert('Invalid Input for Occupation .');
+                return false;
+            }
+
+            combineAddress();
+            return true;
         }
     </script>
 </body>
