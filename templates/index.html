@@ -152,13 +152,11 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    // Update view mode text
                     row.querySelectorAll('.view-mode')[0].innerText = fullName;
                     row.querySelectorAll('.view-mode')[1].innerText = address;
                     row.querySelectorAll('.view-mode')[2].innerText = occupation;
                     row.querySelectorAll('.view-mode')[3].innerText = purpose;
 
-                    // Switch back to view mode
                     row.querySelectorAll('.view-mode').forEach(el => el.style.display = 'inline');
                     row.querySelectorAll('.edit-mode').forEach(el => el.style.display = 'none');
                     row.querySelector('.edit-btn').style.display = 'inline';
