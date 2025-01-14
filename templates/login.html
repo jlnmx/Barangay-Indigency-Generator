@@ -62,6 +62,15 @@
 </style>
 <body>
     <h1>Login as a {{ role.capitalize() }}</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
     <form method="POST">
         <div>
             <label for="username">Username:</label>
