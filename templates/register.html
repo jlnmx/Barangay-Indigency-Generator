@@ -45,6 +45,21 @@
             border: 1px solid #ccc;
             border-radius: 1px;
         }
+        .design {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80px;
+            background-color: #00244b9a;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            z-index: 1000;
+        }
+        
     </style>
 </head>
 <body>
@@ -70,5 +85,6 @@
             Want to register as an admin? <a href="{{ url_for('register', role='admin') }}">Register here</a>
         {% endif %}
     </p>
+    <div class="design"></div>
 </body>
 </html>

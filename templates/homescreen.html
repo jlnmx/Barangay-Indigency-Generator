@@ -13,6 +13,10 @@
         a:hover {
             text-decoration: underline;
         }
+        h1 {
+            position: fixed;
+            align-items: center;
+        }
         .body {
             font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             font-size: 130%;
@@ -57,15 +61,29 @@
             font-size: 2em;
             padding: 10px;
         }
+        .logo {
+            height: 100px;
+            margin-right: 1800px;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
+   
     <div class="homescreen">
+        <div class="logo">
+        <img src="{{ base_url }}static/images/M3-png.png" alt="Barangay Malaban Logo">
+        </div>
         <h1>Welcome, {{ current_user.username }}!</h1>
         <a class="logout"href="{{ url_for('logout') }}">Logout</a>
     </div>
 
     <div class="body">
+        
         <h2>Dashboard</h2>
         {% if current_user.role == 'admin' %}
         <p>You are an Admin.</p>

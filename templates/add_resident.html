@@ -16,7 +16,7 @@
         .body {
             font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             font-size: 130%;
-            margin: 5px;
+            margin: 0px;
             justify-content: center;
             align-items: center;
             border: 1cm;
@@ -50,6 +50,20 @@
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 1px;
+        }
+        .design {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80px;
+            background-color: #00244b9a;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            z-index: 1000;
         }
     </style>
 </head>
@@ -111,7 +125,7 @@
             <li><a href="{{ url_for('approval') }}">Go to Pending Approvals</a></li>
             <li><a href="{{ url_for('rejected_requests') }}">View Rejected Requests</a></li>
         </ul>
-    </div>
+    
 
     <script>
         function combineAddress() {
@@ -142,5 +156,9 @@
             return true;
         }
     </script>
+    </div>
+    <div class="design">
+    </div>
 </body>
+
 </html>

@@ -6,6 +6,20 @@
     <title>{% block title %}Flask App{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+<style>
+    a {
+        text-decoration: none;
+        color: #007BFF;
+        }
+        a:hover {
+        text-decoration: underline;
+        }
+    body {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            margin: 20px;
+        }
+
+</style>
 <body>
     <header>
         <nav>
