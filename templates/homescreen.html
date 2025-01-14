@@ -79,7 +79,7 @@
         <img src="{{ base_url }}static/images/M3-png.png" alt="Barangay Malaban Logo">
         </div>
         <h1>Welcome, {{ current_user.username }}!</h1>
-        <a class="logout"href="{{ url_for('logout') }}">Logout</a>
+        <a class="logout" href="{{ url_for('logout') }}">Logout</a>
     </div>
 
     <div class="body">
@@ -112,7 +112,6 @@
         <ul>
             <li><a href="{{ url_for('index') }}">Residents</a></li>
             <li><a href="{{ url_for('add_resident') }}">Create</a></li>
-            <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
             <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
             <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
         </ul>
