@@ -16,6 +16,12 @@
     body {
     font-family: Arial, sans-serif;
     margin: 20px;
+    background-image: url("{{ base_url }}static/images/webbg2.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-color: rgba(255, 255, 255, 0.658);
+    background-blend-mode: lighten;
     }
     button {
     width: 21%;
@@ -59,8 +65,21 @@
             padding: 0;
             z-index: 1000;
         }
+    .body {
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-size: 130%;
+        margin: 10px;
+        justify-content: center;
+        align-items: center;
+        border: 1cm;
+        background-color: rgba(255, 255, 255, 0.726);
+        height: 800px;
+        width: 1100px;
+        padding: 1%;
+        }
 </style>
 <body>
+    <div class="body">
     <h1>Login as a {{ role.capitalize() }}</h1>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -97,5 +116,6 @@
         {% endif %}
     </p>
     <div class="design"></div>
+</div>
 </body>
 </html>
