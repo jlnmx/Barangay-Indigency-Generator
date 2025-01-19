@@ -234,6 +234,11 @@ def add_resident():
         occupation = request.form['occupation']
         purpose = request.form['purpose']
 
+        existing_resident = Resident.query.filter_by(full_name=full_name).first()
+        if existing_resident:
+            flash('Resident Record Already Exists', 'danger')
+            return render_template('add_resident.html')
+
         new_resident = Resident(full_name=full_name, address=address, occupation=occupation, purpose=purpose)
         db.session.add(new_resident)
         try:
