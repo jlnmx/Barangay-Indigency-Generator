@@ -48,6 +48,8 @@ class Resident(db.Model):
     date_issued = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='pending')  # 'pending', 'approved', 'rejected'
 
+    approvals = db.relationship('ApprovalLog', backref='resident', cascade='all, delete-orphan')
+
     def __repr__(self):
         return f'<Resident {self.full_name}>'
 
@@ -59,6 +61,16 @@ class Resident(db.Model):
         if date_requested is None:
             date_requested = datetime.utcnow()
         self.date_requested = date_requested
+
+class ApprovalLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    resident_id = db.Column(db.Integer, db.ForeignKey('resident.id'), nullable=False)
+    approved_by = db.Column(db.String(100), nullable=False)
+    approval_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    status = db.Column(db.String(20), nullable=False)  # 'approved', 'rejected'
+
+    def __repr__(self):
+        return f'<ApprovalLog {self.id} - {self.status}>'
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -261,6 +273,10 @@ def add_resident():
 @app.route('/delete/<int:resident_id>', methods=['POST'])
 def delete_resident(resident_id):
     resident = Resident.query.get_or_404(resident_id)
+    
+    # Manually delete related records if needed
+    ApprovalLog.query.filter_by(resident_id=resident_id).delete()
+    
     db.session.delete(resident)
     db.session.commit()
     flash(f'Resident {resident.full_name} has been deleted successfully.', 'success')
