@@ -10,19 +10,16 @@ import pdfkit
 import hashlib
 import logging
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__, static_folder='static')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///barangay.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///barangay.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'  
+app.secret_key = 'your_secret_key'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Update with your SMTP server
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'barangayindigencycertsystem@gmail.com')  
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'gnmp nike ihdg upae')
+app.config['MAIL_USERNAME'] = 'sabandojullian@gmail.com'  # Update with your email
+app.config['MAIL_PASSWORD'] = 'aqhx djxp hkoi woje'
 
 db = SQLAlchemy(app)
 mail = Mail(app)
@@ -259,7 +256,7 @@ def add_resident():
         try:
             db.session.commit()
             try:
-                msg = Message('New Pending Resident Indigency Request Added', sender='barangayindigencycertsystem@gmail.com', recipients=['ajlabre14@gmail.com'])
+                msg = Message('New Pending Resident Indigency Request Added', sender='sabandojullian@gmail.com', recipients=['ajlabre14@gmail.com'])
                 msg.body = f'A new resident has been added:\n\nFull Name: {full_name}\nAddress: {address}\nOccupation: {occupation}\nPurpose: {purpose}'
                 mail.send(msg)
                 flash('Resident added successfully!', 'success')
@@ -277,6 +274,7 @@ def add_resident():
 def delete_resident(resident_id):
     resident = Resident.query.get_or_404(resident_id)
     
+    # Manually delete related records if needed
     ApprovalLog.query.filter_by(resident_id=resident_id).delete()
     
     db.session.delete(resident)
