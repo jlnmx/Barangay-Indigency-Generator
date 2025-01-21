@@ -6,23 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barangay System</title>
     <style>
-        a {
-        text-decoration: none;
-        color: #007BFF;
-    }
-        a:hover {
-        text-decoration: underline;
-    }
-        .body {
-            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-        margin: 20px;
-        border: 1cm;
-        background-color: rgba(240, 248, 255, 0.808);
-        height: 800px;
-        width: 1600px;
-        padding: 1%;
-    }
+        /* font styles para sa body and BG */
         body {
+            font-family: 'Trebuchet MS', Arial, sans-serif;
+            margin: 0;
             background-image: url("{{ base_url }}static/images/webbg2.jpg");
             background-repeat: no-repeat;
             background-attachment: fixed;
@@ -30,10 +17,78 @@
             background-color: rgba(255, 255, 255, 0.308);
             background-blend-mode: lighten;
         }
-        
+
+        /* whitebox or container */
+           .content-container {
+            width: 1400px;
+            height: 600px;
+            margin: 100px 0 50px 20px;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.658); /* Semi-transparent white */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: left; /* Align text to the left */
+        }
+
+        /* Lagayan ng Logo container */
+         .logo-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 80px;
+            width: auto;
+        }
+
+        /* header and paragraph align */
+        h1 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: left; /* Aligning text to the left */
+        }
+
+        p {
+            font-size: 1em;
+            color: #555;
+            text-align: left; /* Aligning text to the left */
+        }
+
+        /* Link styles */
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Links container to adjust left alignment */
+        .links {
+            text-align: left; /* Aligning links to the left */
+        }
     </style>
 </head>
+
 <body>
+    <div class="content-container">
+        <!-- Logo Section -->
+        <div class="logo-container">
+            <div class="logo">
+                <img src="{{ base_url }}static/images/M3-png.png" alt="Barangay Malaban Logo">
+            </div>
+            <div class="logo">
+                <img src="{{ base_url }}static/images/600px-Binan_City_Seal.png" alt="BiÃ±an City Seal">
+            </div>
+        </div>
+    <div>    
     <div class="body">
     <h1>Welcome to Barangay Indigency Certificate System</h1>
     <p>Please select if you are a new or existing user:</p>

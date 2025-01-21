@@ -14,21 +14,22 @@
             text-decoration: underline;
         }
         .body {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: left; /* Align text to the left */
             font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             font-size: 130%;
             margin: 0px;
             justify-content: center;
             align-items: center;
-            border: 1cm;
             background-color: rgba(197, 228, 255, 0.582);
-            height: 600px;
+            height: 800px;
             width: 1200px;
             padding: 1%;
             overflow-y: scroll;
         }
         body {
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-        margin: 20px;
+        margin: 60px;
         background-image: url("{{ base_url }}static/images/webbg2.jpg");
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -57,9 +58,32 @@
             border: 1px solid #ccc;
             border-radius: 1px;
         }
+        .homescreen {
+            display: flex;
+        }
+        .logo {
+            height: 100px;
+            margin-right: 1200px;
+            display: flex;
+            gap: 20px;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            
+    }
+        
     </style>
 </head>
 <body>
+    <div class="homescreen">
+        <div class="logo">
+        <img src="{{ base_url }}static/images/M3-png.png" alt="Barangay Malaban Logo">
+        <img src="{{ base_url }}static/images/600px-Binan_City_Seal.png" alt="Barangay Malaban Logo">
+        </div>
+    </div>
+    <div class="body">
     <div class="header">
         <h1>Add Resident</h1>
         <a href="{{ url_for('home_screen') }}">Back to Home</a> |
@@ -75,7 +99,7 @@
             </div>
         {% endif %}
     {% endwith %}
-    <div class="body">
+    
         <form method="POST" onsubmit="return validateForm()">
             <div>
                 <label for="full_name">Full Name:</label>
