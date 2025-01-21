@@ -64,11 +64,14 @@
         .logo {
             height: 100px;
             margin-right: 1800px;
+            display: flex;
+            gap: 20px;
         }
         .logo img {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            
         }
     </style>
 </head>
@@ -77,6 +80,7 @@
     <div class="homescreen">
         <div class="logo">
         <img src="{{ base_url }}static/images/M3-png.png" alt="Barangay Malaban Logo">
+        <img src="{{ base_url }}static/images/600px-Binan_City_Seal.png" alt="Barangay Malaban Logo">
         </div>
         <h1>Welcome, {{ current_user.username }}!</h1>
         <a class="logout" href="{{ url_for('logout') }}">Logout</a>
