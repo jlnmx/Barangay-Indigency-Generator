@@ -12,14 +12,14 @@ import logging
 import os
 
 app = Flask(__name__, static_folder='static')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///barangay.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///barangay.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'your_secret_key'
+app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Update with your SMTP server
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'sabandojullian@gmail.com'  # Update with your email
-app.config['MAIL_PASSWORD'] = 'aqhx djxp hkoi woje'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'sabandojullian@gmail.com')  # Update with your email
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'aqhx djxp hkoi woje')
 
 db = SQLAlchemy(app)
 mail = Mail(app)
