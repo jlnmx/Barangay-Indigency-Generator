@@ -15,11 +15,12 @@ app = Flask(__name__, static_folder='static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///barangay.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Update with your SMTP server
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'sabandojullian@gmail.com'  # Update with your email
-app.config['MAIL_PASSWORD'] = 'aqhx djxp hkoi woje'
+app.config['MAIL_USERNAME'] = 'barangayindigencycertsystem@gmail.com'  
+app.config['MAIL_PASSWORD'] = 'xzjv fymj qogl kccj'
+
 
 db = SQLAlchemy(app)
 mail = Mail(app)
@@ -46,7 +47,7 @@ class Resident(db.Model):
     purpose = db.Column(db.String(200), nullable=False)
     date_requested = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     date_issued = db.Column(db.DateTime)
-    status = db.Column(db.String(20), default='pending')  # 'pending', 'approved', 'rejected'
+    status = db.Column(db.String(20), default='pending')  
 
     approvals = db.relationship('ApprovalLog', backref='resident', cascade='all, delete-orphan')
 
@@ -67,7 +68,7 @@ class ApprovalLog(db.Model):
     resident_id = db.Column(db.Integer, db.ForeignKey('resident.id'), nullable=False)
     approved_by = db.Column(db.String(100), nullable=False)
     approval_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    status = db.Column(db.String(20), nullable=False)  # 'approved', 'rejected'
+    status = db.Column(db.String(20), nullable=False) 
 
     def __repr__(self):
         return f'<ApprovalLog {self.id} - {self.status}>'
@@ -256,7 +257,7 @@ def add_resident():
         try:
             db.session.commit()
             try:
-                msg = Message('New Pending Resident Indigency Request Added', sender='sabandojullian@gmail.com', recipients=['ajlabre14@gmail.com'])
+                msg = Message('New Pending Resident Indigency Request Added', sender='barangayindigencycertsystem@gmail.com', recipients=['ajlabre14@gmail.com'])
                 msg.body = f'A new resident has been added:\n\nFull Name: {full_name}\nAddress: {address}\nOccupation: {occupation}\nPurpose: {purpose}'
                 mail.send(msg)
                 flash('Resident added successfully!', 'success')
@@ -274,7 +275,6 @@ def add_resident():
 def delete_resident(resident_id):
     resident = Resident.query.get_or_404(resident_id)
     
-    # Manually delete related records if needed
     ApprovalLog.query.filter_by(resident_id=resident_id).delete()
     
     db.session.delete(resident)
