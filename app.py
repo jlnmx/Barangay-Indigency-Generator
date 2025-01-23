@@ -412,6 +412,42 @@ def delete_user(user_id):
     flash(f"User {user.username} has been deleted.", 'success')
     return redirect(url_for('manage_users'))
 
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = Account.query.filter_by(username=username, role='admin').first()
+        
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            flash(f"Welcome {user.username}!", "success")
+            return redirect(url_for('home_screen'))
+        else:
+            flash("Incorrect username or password. Please try again.", "danger")
+    
+    return render_template('admin_login.html')
+
+@app.route('/admin_register', methods=['GET', 'POST'])
+def admin_register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+        
+        if Account.query.filter_by(username=username).first():
+            flash('Username already exists!', 'danger')
+            return redirect(url_for('admin_register'))
+        
+        user = Account(username=username, password=password, role='admin')
+        db.session.add(user)
+        db.session.commit()
+        
+        login_user(user)
+        flash('Admin account created successfully! You are now logged in.', 'success')
+        return redirect(url_for('home_screen'))
+    
+    return render_template('admin_register.html')
+
 if __name__ == '__main__':
     if not os.path.exists('barangay.db'):
         with app.app_context():

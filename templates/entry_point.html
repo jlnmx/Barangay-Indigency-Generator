@@ -73,7 +73,27 @@
         .links {
             text-align: left; 
         }
+        #admin-button {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
     </style>
+    <script>
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && event.key === 'A') {
+                document.getElementById('admin-button').style.display = 'block';
+            }
+        });
+    </script>
 </head>
 
 <body>
@@ -86,7 +106,6 @@
                 <img src="{{ base_url }}static/images/600px-Binan_City_Seal.png" alt="BiÃ±an City Seal">
             </div>
         </div>
-    <div>    
     <div class="body">
     <h1>Welcome to Barangay Indigency Certificate System</h1>
     <p>Please select if you are a new or existing user:</p>
@@ -94,10 +113,7 @@
         <a href="{{ url_for('register', role='user') }}">New User</a> | 
         <a href="{{ url_for('login', role='user') }}">Existing User</a>
     </div>
-    <p>If you're an admin, click below:</p>
-    <div>
-        <a href="{{ url_for('register', role='admin') }}">New Admin</a> | 
-        <a href="{{ url_for('login', role='admin') }}">Existing Admin</a>
+        <button id="admin-button" onclick="window.location.href='/admin_login'">Admin Mode</button>
     </div>
     </div>
 </body>

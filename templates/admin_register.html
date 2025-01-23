@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>   
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In</title>
+    <title>Admin Register</title>
 </head>
 <style>
     a {
@@ -94,36 +93,21 @@
     }
 </style>
 <body>
-    <div class="logo">
-        <img src="{{ base_url }}static/images/M3-png.png" alt="Barangay Malaban Logo">
-        <img src="{{ base_url }}static/images/600px-Binan_City_Seal.png" alt="Barangay Malaban Logo">
-        </div>
-    <div class="body">
-    <h1>Login as a {{ role.capitalize() }}</h1>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <h2>Admin Register</h2>
     <form method="POST">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" name="username" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" name="password" required>
-        </div>
-        <button type="submit">Login</button>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Register</button>
     </form>
-    <p>Don't have an account? 
-        <a href="{{ url_for('register', role='user') }}">Register as a User</a>
+    <p>Have an existing admin account? 
+        <a href="{{ url_for('admin_login') }}">Login Here</a>
     </p>
-    <div class="design"></div>
-</div>
+    <p>
+        <a href="{{ url_for('entry_point') }}">Exit</a>
+    </p>
 </body>
 </html>
