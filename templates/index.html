@@ -83,7 +83,7 @@
         <a href="{{ url_for('home_screen') }}">Back to Home</a> | 
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
-    <h1>Residents</h1>
+    <h1>Resident Records</h1>
     <form method="GET" action="{{ url_for('index') }}">
         <input type="text" name="query" placeholder="Search by name" value="{{ query }}">
         <select name="purpose">
