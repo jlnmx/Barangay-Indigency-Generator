@@ -92,11 +92,11 @@
         {% if current_user.role == 'admin' %}
         <p>You are an Admin.</p>
         <ul>
-            <li><a href="{{ url_for('index') }}">Residents</a></li>
-            <li><a href="{{ url_for('add_resident') }}">Create</a></li>
-            <li><a href="{{ url_for('analytics') }}">View Analytics</a></li>
-            <li><a href="{{ url_for('manage_users') }}">Manage Users</a></li>
-            <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
+            <li><a href="{{ url_for('index') }}">Resident Records</a></li>
+            <li><a href="{{ url_for('add_resident') }}">Add Resident Information</a></li>
+            <li><a href="{{ url_for('analytics') }}">Analytics</a></li>
+            <li><a href="{{ url_for('manage_users') }}">Manage Accounts</a></li>
+            <li><a href="{{ url_for('approval') }}">Pending Requests</a></li>
             <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
         </ul>
         <div class="pending-approvals">
@@ -114,9 +114,9 @@
         {% elif current_user.role == 'user' %}
         <p>You are a User.</p>
         <ul>
-            <li><a href="{{ url_for('index') }}">Residents</a></li>
-            <li><a href="{{ url_for('add_resident') }}">Create</a></li>
-            <li><a href="{{ url_for('approval') }}">Approval Requests</a></li>
+            <li><a href="{{ url_for('index') }}">Resident Records</a></li>
+            <li><a href="{{ url_for('add_resident') }}">Add Resident Information</a></li>
+            <li><a href="{{ url_for('approval') }}">Pending Requests</a></li>
             <li><a href="{{ url_for('rejected_requests') }}">Rejected Requests</a></li>
         </ul>
         {% endif %}
