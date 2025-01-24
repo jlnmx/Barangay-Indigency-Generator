@@ -128,6 +128,7 @@
                     <button class="edit-btn" onclick="editRow({{ resident.id }})">Edit</button>
                     <button class="save-btn" onclick="saveRow({{ resident.id }})">Save</button>
                     <a href="{{ url_for('generate', id=resident.id) }}">Generate Certificate</a>
+                    <a href="{{ url_for('preview_certificate', id=resident.id) }}" target="_blank">Preview</a>
                     <form action="{{ url_for('delete_resident', resident_id=resident.id) }}" method="post" style="display: inline;">
                         <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this resident?');">
                             Delete

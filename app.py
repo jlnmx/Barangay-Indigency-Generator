@@ -314,6 +314,25 @@ def generate(id):
         flash("An error occurred while generating the certificate.", "danger")
         return redirect(url_for('index'))
 
+@app.route('/preview_certificate/<int:id>')
+@login_required
+def preview_certificate(id):
+    resident = Resident.query.get_or_404(id)
+    resident.date_issued = datetime.now()
+    db.session.commit()
+
+    data = {
+        'full_name': resident.full_name,
+        'address': resident.address,
+        'occupation': resident.occupation,
+        'purpose': resident.purpose,
+        'date': resident.date_issued.strftime('%B %d, %Y')
+    }
+
+    base_url = request.url_root.replace('localhost', '127.0.0.1')
+    html = render_template('certificate_template.html', base_url=base_url, **data)
+    return html
+    
 @app.route('/analytics')
 def analytics():
     total_residents = Resident.query.count()
