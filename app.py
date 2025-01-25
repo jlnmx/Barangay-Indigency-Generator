@@ -54,7 +54,7 @@ class Resident(db.Model):
     def __repr__(self):
         return f'<Resident {self.full_name}>'
 
-    def __init__(self, full_name, address, occupation, purpose, date_requested=None):
+    def __init__(self, full_name, address, occupation, purpose, date_requested=None, date_issued=None):
         self.full_name = full_name
         self.address = address
         self.occupation = occupation
@@ -62,6 +62,31 @@ class Resident(db.Model):
         if date_requested is None:
             date_requested = datetime.utcnow()
         self.date_requested = date_requested
+        self.date_issued = date_issued
+
+
+class DeletedResident(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.String(200), nullable=False)
+    occupation = db.Column(db.String(100), nullable=False)
+    purpose = db.Column(db.String(200), nullable=False)
+    date_requested = db.Column(db.DateTime, nullable=False)
+    date_issued = db.Column(db.DateTime)
+    deleted_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    deleted_by = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f'<DeletedResident {self.full_name}>'
+
+    def __init__(self, full_name, address, occupation, purpose, date_requested, deleted_by, date_issued=None):
+        self.full_name = full_name
+        self.address = address
+        self.occupation = occupation
+        self.purpose = purpose
+        self.date_requested = date_requested
+        self.date_issued = date_issued  
+        self.deleted_by = deleted_by
 
 class ApprovalLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -272,14 +297,54 @@ def add_resident():
     return render_template('add_resident.html')
 
 @app.route('/delete/<int:resident_id>', methods=['POST'])
+@login_required
 def delete_resident(resident_id):
     resident = Resident.query.get_or_404(resident_id)
-    
-    ApprovalLog.query.filter_by(resident_id=resident_id).delete()
-    
+    deleted_resident = DeletedResident(
+        full_name=resident.full_name,
+        address=resident.address,
+        occupation=resident.occupation,
+        purpose=resident.purpose,
+        date_requested=resident.date_requested,
+        date_issued=resident.date_issued,
+        deleted_by=current_user.username
+    )
+    db.session.add(deleted_resident)
     db.session.delete(resident)
     db.session.commit()
-    flash(f'Resident {resident.full_name} has been deleted successfully.', 'success')
+    flash('Resident deleted successfully!', 'success')
+    return redirect(url_for('index'))
+
+
+@app.route('/deleted_residents')
+@login_required
+def deleted_residents():
+    if current_user.role != 'admin':
+        flash('You are not authorized to view deleted residents.', 'danger')
+        return redirect(url_for('home_screen'))
+
+    deleted_residents = DeletedResident.query.all()
+    return render_template('deleted_residents.html', deleted_residents=deleted_residents)
+
+@app.route('/recover_resident/<int:resident_id>', methods=['POST'])
+def recover_resident(resident_id):
+    deleted_resident = DeletedResident.query.get_or_404(resident_id)
+    if deleted_resident:
+        resident = Resident(
+            full_name=deleted_resident.full_name,
+            address=deleted_resident.address,
+            occupation=deleted_resident.occupation,
+            purpose=deleted_resident.purpose,
+            date_requested=deleted_resident.date_requested,
+            date_issued=deleted_resident.date_issued,
+        )
+        db.session.add(resident)
+        db.session.delete(deleted_resident)
+        db.session.commit()
+        flash(f'Resident {resident.full_name} has been recovered successfully.', 'success')
+    else:
+        flash('Resident not found or cannot be recovered.', 'danger')
+
     return redirect(url_for('index'))
 
 @app.route('/generate/<int:id>')

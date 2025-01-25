@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deleted Residents</title>
+    <style>
+        body {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            margin: 20px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        button {
+            width: 60%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input[type="text"] {
+            width: 20%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 1px;
+        }
+        input[type="password"] {
+            width: 20%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 1px;
+        }
+        select {
+            width: 21%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 1px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .actions a {
+            margin-right: 10px;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        .actions a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('home_screen') }}">Back to Home</a> | 
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <h1>Deleted Residents</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Address</th>
+                <th>Occupation</th>
+                <th>Purpose</th>
+                <th>Date Requested</th>
+                <th>Deleted By</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for deleted_resident in deleted_residents %}
+            <tr>
+                <td>{{ deleted_resident.full_name }}</td>
+                <td>{{ deleted_resident.address }}</td>
+                <td>{{ deleted_resident.occupation }}</td>
+                <td>{{ deleted_resident.purpose }}</td>
+                <td>{{ deleted_resident.date_requested }}</td>
+                <td>{{ deleted_resident.deleted_by }}</td>
+                <td>
+                    <form action="{{ url_for('recover_resident', resident_id=deleted_resident.id) }}" method="POST">
+                        <button type="submit">Recover</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
